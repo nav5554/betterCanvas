@@ -38,6 +38,22 @@ export async function getUpcomingAssignments(courseId: number, limit = 5): Promi
   );
 }
 
+export async function getPreviousAssignments(courseId: number, limit = 5): Promise<Assignment[]> {
+  return Promise.resolve(
+    all<Assignment>(
+      `
+      SELECT id, name, due_at, points_possible, html_url
+      FROM assignments
+      WHERE course_id = ?
+        AND due_at IS NOT NULL
+        AND datetime(due_at) < datetime('now')
+      ORDER BY datetime(due_at) DESC
+      LIMIT ?`,
+      [courseId, limit]
+    )
+  );
+}
+
 export async function getRecentAnnouncements(courseId: number, limit = 5): Promise<Announcement[]> {
   return Promise.resolve(
     all<Announcement>(`
